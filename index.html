@@ -823,6 +823,43 @@
                 }
             }
 
+            // async function handleToggleClick() {
+            //     if (!isOnline) {
+            //         showAlert(
+            //             "danger",
+            //             "❌ Cannot control relay - No internet connection"
+            //         );
+            //         return;
+            //     }
+
+            //     const isLimitReached =
+            //         currentData.consumption >= currentData.limit;
+            //     const currentStatus = currentData.loadStatus === "on";
+
+            //     // If trying to turn ON when limit is reached
+            //     if (!currentStatus && isLimitReached) {
+            //         showAlert(
+            //             "danger",
+            //             "❌ Cannot turn ON - Daily limit reached! Please increase the limit first."
+            //         );
+            //         return;
+            //     }
+
+            //     // If in auto mode, switch to manual
+            //     if (currentData.controlMode === "auto") {
+            //         await setControlMode("manual");
+            //     }
+
+            //     const newCommand = currentStatus ? "off" : "on";
+            //     await updateFirebase("settings", { relayCommand: newCommand });
+
+            //     showAlert(
+            //         "success",
+            //         `✅ Relay turned ${newCommand.toUpperCase()} successfully`
+            //     );
+            // }
+
+
             async function handleToggleClick() {
                 if (!isOnline) {
                     showAlert(
@@ -845,20 +882,33 @@
                     return;
                 }
 
+                // Disable toggle during update
+                const toggleSwitch = document.getElementById("toggleSwitch");
+                toggleSwitch.classList.add("disabled");
+
                 // If in auto mode, switch to manual
                 if (currentData.controlMode === "auto") {
                     await setControlMode("manual");
                 }
 
                 const newCommand = currentStatus ? "off" : "on";
-                await updateFirebase("settings", { relayCommand: newCommand });
+                const success = await updateFirebase("settings", { relayCommand: newCommand });
 
-                showAlert(
-                    "success",
-                    `✅ Relay turned ${newCommand.toUpperCase()} successfully`
-                );
+                // Re-enable toggle
+                toggleSwitch.classList.remove("disabled");
+
+                if (success) {
+                    showAlert(
+                        "success",
+                        `✅ Relay command sent. Waiting for device response...`
+                    );
+                } else {
+                    showAlert(
+                        "danger",
+                        "❌ Failed to send command. Please try again."
+                    );
+                }
             }
-
             async function setControlMode(mode) {
                 if (!isOnline) {
                     showAlert(
