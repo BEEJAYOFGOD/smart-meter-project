@@ -861,6 +861,10 @@
 
 
             async function handleToggleClick() {
+                // console.log(isOnline);
+
+                // return;
+
                 if (!isOnline) {
                     showAlert(
                         "danger",
@@ -893,6 +897,8 @@
 
                 const newCommand = currentStatus ? "off" : "on";
                 const success = await updateFirebase("settings", { relayCommand: newCommand });
+
+                console.log(success);
 
                 // Re-enable toggle
                 toggleSwitch.classList.remove("disabled");
@@ -969,14 +975,16 @@
                     );
 
                     if (!response.ok) throw new Error("Update failed");
+                    return true;
 
                     // Immediately fetch updated data
                     setTimeout(fetchAllData, 500);
                 } catch (error) {
                     console.error("Error updating Firebase:", error);
+                    return false;
                     showAlert(
                         "danger",
-                        "❌ Update failed - Please check your connection"
+                        "❌ Update failed - Please check your connection is okay"
                     );
                 }
             }
